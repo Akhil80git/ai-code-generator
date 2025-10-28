@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Code Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      padding: 30px;
+      color: #222;
+      max-width: 900px;
+      margin: auto;
+    }
+    h1 { color: #333; }
+    textarea, input, button {
+      width: 100%;
+      margin: 8px 0;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover { background-color: #0056b3; }
+    #result {
+      white-space: pre-wrap;
+      background: #fff;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+      min-height: 80px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🤖 AI Code Generator (Hugging Face)</h1>
+  <p>अपना prompt डालें और "Generate" पर क्लिक करें।</p>
+
+  <input id="model" placeholder="Model (उदा: gpt2, google/flan-t5-large)" />
+  <textarea id="prompt" placeholder="यहाँ अपना prompt लिखें..."></textarea>
+  <input id="max_length" type="number" placeholder="Max tokens (optional)" />
+  <button id="gen">Generate</button>
+
+  <p id="status"></p>
+  <h3>Output:</h3>
+  <div id="result">...</div>
+
+  <script>
+    document.getElementById("gen").onclick = async () => {
+      const model = document.getElementById("model").value || "gpt2";
+      const prompt = document.getElementById("prompt").value.trim();
+      const max_length = parseInt(document.getElementById("max_length").value) || undefined;
+      const result = document.getElementById("result");
+      const status = document.getElementById("status");
+
+      if (!prompt) return alert("कृपया prompt डालें!");
+
+      status.textContent = "Generating...";
+      result.textContent = "";
+
+      try {
+        const res = await fetch("/api/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ model, prompt, max_length }),
+        });
+
+        const data = await res.json();
+        if (data[0]?.generated_text) result.textContent = data[0].generated_text;
+        else if (data.generated_text) result.textContent = data.generated_text;
+        else result.textContent = JSON.stringify(data, null, 2);
+
+        status.textContent = "✅ Done";
+      } catch (err) {
+        status.textContent = "❌ Error";
+        result.textContent = err.message;
+      }
+    };
+  </script>
+</body>
+</html>
