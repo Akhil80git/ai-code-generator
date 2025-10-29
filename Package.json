@@ -1,5 +1,5 @@
 {
-  "name": "ai-code-generator",
+  "name": "ai-code-generator-7",
   "version": "1.0.0",
   "description": "AI Code Generator using Hugging Face API",
   "main": "server.js",
